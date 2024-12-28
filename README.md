@@ -77,25 +77,31 @@ from nn import MLP
 from engine import Value
 
 # Create an MLP with 2 inputs and 1 output
-model = MLP(2, [3, 1])
+n = MLP(3, [4,4,1])
+
+# input values
+xs = [
+    [2.0, 3.0, -1.0],
+    [3.0, -1.0, 0.5],
+    [0.5, 1.0, 1.0],
+    [1.0, 1.0, -1.0]
+    ]
+ys = [1.0, -1.0, -1.0, 1.0] # desired values  
 
 # Training loop
-for epoch in range(100):
-    # Example input and target
-    x = [Value(1.0), Value(2.0)]
-    y_true = Value(3.0)
-
-    # Forward pass
-    y_pred = model(x)
-    loss = (y_pred - y_true)**2
-
-    # Zero gradients, backpropagate, and update parameters
-    model.zero_grad()
+for k in range(100):
+    # forward pass
+    ypreds = [n(x) for x in xs]
+    loss = sum((ygt - yout)**2 for (ygt, yout) in zip(ys, ypreds))
+    
+    # backward pass
+    for p in n.parameters():
+        p.grad = 0.0
     loss.backward()
-    for param in model.parameters():
-        param.data -= 0.01 * param.grad
-
-    print(f"Epoch {epoch}: Loss = {loss.data}")
+    for p in n.parameters():
+        p.data += -0.05*p.grad
+    
+    print(f"Step: {k} | MSE Loss: {loss.data}")
 ```
 
 ---
